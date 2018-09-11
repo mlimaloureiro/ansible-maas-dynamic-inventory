@@ -1,26 +1,6 @@
 import unittest
-from inventories import Authenticator
-from inventories import Fetcher
 from inventories import InventoryBuilder
-
-class TestAuthenticatorMethods(unittest.TestCase):
-
-    def setUp(self):
-        self.authenticator = Authenticator()
-
-    def test_hello(self):
-        result = self.authenticator.hello('test')
-        self.assertEqual(result, 'hello test')
-
-
-class TestFetcherMethods(unittest.TestCase):
-
-    def setUp(self):
-        self.fetcher = Fetcher()
-
-    def test_hello(self):
-        result = self.fetcher.hello('test')
-        self.assertEqual(result, 'hello test')
+import test_fixtures as fixtures
 
 
 class TestInventoryBuilderMethods(unittest.TestCase):
@@ -28,8 +8,12 @@ class TestInventoryBuilderMethods(unittest.TestCase):
     def setUp(self):
         self.inventory_builder = InventoryBuilder()
 
-    def test_hello(self):
-        print(self.inventory_builder)
+    def test_build_from_tagged_machines(self):
+        inventory = self.inventory_builder.build_from_tagged_machines(
+            fixtures.test_build_from_tagged_machines_input
+        )
+
+        self.assertEqual(inventory, fixtures.test_build_from_tagged_machines_result)
 
 
 if __name__ == '__main__':
