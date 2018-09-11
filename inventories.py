@@ -1,18 +1,26 @@
-"""
-MAAS dynamic inventory generator script.
+class Authenticator:
+    """ Class used to authenticate requests and build request headers """
 
-Usage:
-  inventories.py (-h | --help)
-  inventories.py --version
+    def hello(self, name: str) -> str:
+        return "hello {}".format(name)
 
-Options:
-  -h --help     Show this screen.
-  --version     Show version.
-"""
-from docopt import docopt
-import requests
+
+class Fetcher:
+    """ Class used to fetch nodes data from MAAS """
+
+    def hello(self, name: str) -> str:
+        return "hello {}".format(name)
+
+
+class InventoryBuilder:
+    """ Class used to build the inventory """
+
+    def __init__(self, authenticator: Authenticator, fetcher: Fetcher):
+        self.authenticator = authenticator
+        self.fetcher = fetcher
 
 
 if __name__ == '__main__':
-    arguments = docopt(__doc__, version='MAAS dynamic inventory 0.1')
-    print(arguments)
+    Authenticator()
+    Fetcher()
+    InventoryBuilder()
