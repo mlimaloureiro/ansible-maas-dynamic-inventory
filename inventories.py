@@ -50,17 +50,17 @@ class Fetcher:
         # i.e: { 'group-1': [ { fqdn: 'host-1', .. }, { fqdn: 'host-2', .. } ]}
         return groups
 
-    def _fetch_tags_summary(self):
+    def _fetch_tags_summary(self) -> dict:
         url = "{}/tags/".format(self.maas_api_url.rstrip())
 
         return self._api_call(url)
 
-    def _fetch_machines_by_tag(self, tag_name):
+    def _fetch_machines_by_tag(self, tag_name: str) -> dict:
         url = "{}/tags/{}/?op=machines".format(self.maas_api_url.rstrip(), tag_name)
 
         return self._api_call(url)
 
-    def _api_call(self, url: str):
+    def _api_call(self, url: str) -> dict:
         headers = self.authenticator.create_headers()
         request = requests.get(url, headers=headers)
         response = json.loads(request.text)
@@ -71,7 +71,7 @@ class Fetcher:
 class InventoryBuilder:
     """ Class used to build the inventory """
 
-    def build_from_tagged_machines(self, machines):
+    def build_from_tagged_machines(self, machines: dict) -> dict:
         inventory = self._get_default_inventory()
 
         for tag_name, grouped_machines in machines.items():
@@ -93,13 +93,13 @@ class InventoryBuilder:
             }
         }
 
-    def _build_meta(self, machine) -> dict:
+    def _build_meta(self, machine: dict) -> dict:
         return {
             'ansible_ssh_host': machine['ip_addresses'][0],
             'ansible_ssh_host_private': machine['ip_addresses'][0]
         }
 
-    def _build_hosts(self, hosts_list) -> dict:
+    def _build_hosts(self, hosts_list: list) -> dict:
         return {
             'hosts': hosts_list,
             'vars': {}

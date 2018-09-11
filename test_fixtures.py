@@ -1,7 +1,8 @@
 import maas_status_enum
 
 test_build_from_tagged_machines_input = {
-    # key is the tag attached to maas node
+    # key is the tag attached to maas node, value are the machines
+    # containing that tag
     'ceph': [
         {
             'fqdn': 'ceph-node1.dev',
@@ -40,6 +41,7 @@ test_build_from_tagged_machines_input = {
 }
 
 test_build_from_tagged_machines_result = {
+    # inventories dict
     '_meta': {
         'hostvars': {
             'ceph-node1.dev': {
