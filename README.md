@@ -16,15 +16,11 @@ By looking at the tests it's quite easy to understand how it works. Just look at
 Set environment variables for `MAAS_API_URL` and `MAAS_API_KEY`. After that you can run
 
 ```
-   $ python inventories.py
+   $ python maas.py --list
 ```
 
 and with ansible
 
 ```
-    $ ansible -i inventories.py some-playbook.yml
+    $ ansible -i maas.py some-playbook.yml
 ```
-
-### TODO's
-
-Wrap with proper CLI interface with `--list` and `--host` arguments

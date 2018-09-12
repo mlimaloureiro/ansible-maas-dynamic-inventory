@@ -1,9 +1,7 @@
-import os
 import uuid
 import requests
 import json
 import maas_status_enum
-import sys
 import oauth2 as oauth
 
 
@@ -104,22 +102,3 @@ class InventoryBuilder:
             'hosts': hosts_list,
             'vars': {}
         }
-
-
-if __name__ == '__main__':
-    maas_api_url = os.environ.get('MAAS_API_URL')
-    maas_api_key = os.environ.get('MAAS_API_KEY')
-
-    if not maas_api_key:
-        sys.exit("MAAS_API_KEY environment variable not found")
-    if not maas_api_url:
-        sys.exit("MAAS_API_URL environment variable not found")
-
-    authenticator = Authenticator(maas_api_url, maas_api_key)
-    fetcher = Fetcher(authenticator, maas_api_url)
-    machines = fetcher.fetch_machines_grouped_by_tags()
-
-    builder = InventoryBuilder()
-    inventory = builder.build_from_tagged_machines(machines)
-
-    print(json.dumps(inventory, indent=4))
