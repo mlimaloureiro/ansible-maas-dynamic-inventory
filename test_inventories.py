@@ -1,5 +1,5 @@
 import unittest
-from inventories import InventoryBuilder
+from inventory import InventoryBuilder
 import test_fixtures as fixtures
 
 
