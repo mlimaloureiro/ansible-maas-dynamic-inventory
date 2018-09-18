@@ -68,6 +68,11 @@ class Fetcher:
 
         return self._api_call(url)
 
+    def _fetch_machines_all(self) -> dict:
+        url = "{}/machines".format(self.maas_api_url.rstrip())
+
+        return self._api_call(url)
+
     def _api_call(self, url: str) -> dict:
         headers = self.authenticator.create_headers()
         request = requests.get(url, headers=headers)
