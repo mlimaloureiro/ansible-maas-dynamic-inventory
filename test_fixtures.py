@@ -8,6 +8,9 @@ def fetch_tags_summary() -> dict:
 def fetch_machines_by_tag(tag_name: str) -> dict:
     return test_fetch_machines_grouped_by_tags_machines[tag_name]
 
+def fetch_machines_all() -> dict:
+    return test_fetch_machines_grouped_by_hostname_machines
+
 
 test_fetch_machines_grouped_by_tags_tags = [
     {
@@ -77,15 +80,13 @@ test_fetch_machines_grouped_by_tags_machines = {
     'empty-tag': [],
 }
 
-test_fetch_machines_grouped_by_tags_output = {
+test_fetch_machines_grouped_by_tags_result = {
   'ceph': [
     {
       'fqdn': 'ceph-node1.dev',
       'hostname': 'ceph-node1',
       'osystem': 'ubuntu',
-      'tag_names': [
-        'ceph',
-      ],
+      'tag_names': ['ceph'],
       'system_id': 'ff3aqd',
       'resource_uri': '/MAAS/api/2.0/machines/ff3aqd/',
     },
@@ -93,9 +94,7 @@ test_fetch_machines_grouped_by_tags_output = {
       'fqdn': 'ceph-node2.dev',
       'hostname': 'ceph-node2',
       'osystem': 'ubuntu',
-      'tag_names': [
-        'ceph',
-      ],
+      'tag_names': ['ceph'],
       'system_id': 'ff3aqe',
       'resource_uri': '/MAAS/api/2.0/machines/ff3aqe/',
     }
@@ -105,9 +104,7 @@ test_fetch_machines_grouped_by_tags_output = {
       'fqdn': 'kubernetes1.dev',
       'hostname': 'kubernetes1',
       'osystem': 'ubuntu',
-      'tag_names': [
-        'kubernets',
-      ],
+      'tag_names': ['kubernets'],
       'system_id': 'ff4aqd',
       'resource_uri': '/MAAS/api/2.0/machines/ff4aqd/',
     },
@@ -115,9 +112,7 @@ test_fetch_machines_grouped_by_tags_output = {
       'fqdn': 'kubernetes2.dev',
       'hostname': 'kubernetes2',
       'osystem': 'ubuntu',
-      'tag_names': [
-        'kubernets',
-      ],
+      'tag_names': ['kubernets'],
       'system_id': 'ff4aqe',
       'resource_uri': '/MAAS/api/2.0/machines/ff4aqe/',
     },
@@ -125,9 +120,7 @@ test_fetch_machines_grouped_by_tags_output = {
       'fqdn': 'kubernetes3.dev',
       'hostname': 'kubernetes3',
       'osystem': 'ubuntu',
-      'tag_names': [
-        'kubernets',
-      ],
+      'tag_names': ['kubernets'],
       'system_id': 'ff4aqf',
       'resource_uri': '/MAAS/api/2.0/machines/ff4aqf/',
     },
@@ -135,14 +128,75 @@ test_fetch_machines_grouped_by_tags_output = {
       'fqdn': 'kubernetes4.dev',
       'hostname': 'kubernetes4',
       'osystem': 'ubuntu',
-      'tag_names': [
-        'kubernets',
-      ],
+      'tag_names': ['kubernets'],
       'system_id': 'ff4aqg',
       'resource_uri': '/MAAS/api/2.0/machines/ff4aqg/',
     }
   ],
   'empty-tag': [],
+}
+
+test_fetch_machines_grouped_by_hostname_machines = [
+    # List of machines provided by the get all machines API
+    {
+        "ip_addresses": ["172.16.1.63"],
+        "hostname": "joint-1",
+        "fqdn": "joint-1.maas",
+        "status_name": "Deployed",
+    },
+    {
+        "ip_addresses": ["172.16.1.66"],
+        "hostname": "gentle-mole",
+        "fqdn": "gentle-mole.maas",
+        "status_name": "Deployed",
+    },
+    {
+        "ip_addresses": ["172.16.1.64"],
+        "hostname": "key-chimp",
+        "fqdn": "key-chimp.maas",
+        "status_name": "Deployed",
+    },
+    {
+        "ip_addresses": ["172.16.1.62"],
+        "hostname": "joint-2",
+        "fqdn": "loyal-2.maas",
+        "status_name": "Deployed",
+    },
+]
+
+test_fetch_machines_grouped_by_hostname_result = {
+    # key is the hostname prefix attached to maas node, value are the machines
+    # containing that hostname prefix
+    'joint': [
+        {
+            'ip_addresses': ['172.16.1.63'],
+            'hostname': 'joint-1',
+            'fqdn': 'joint-1.maas',
+            'status_name': 'Deployed',
+        },
+        {
+            'ip_addresses': ['172.16.1.62'],
+            'hostname': 'joint-2',
+            'fqdn': 'loyal-2.maas',
+            'status_name': 'Deployed',
+        }
+    ],
+    'gentle': [
+        {
+            'ip_addresses': ['172.16.1.66'],
+            'hostname': 'gentle-mole',
+            'fqdn': 'gentle-mole.maas',
+            'status_name': 'Deployed',
+        }
+    ],
+    'key': [
+        {
+            'ip_addresses': ['172.16.1.64'],
+            'hostname': 'key-chimp',
+            'fqdn': 'key-chimp.maas',
+            'status_name': 'Deployed',
+        }
+    ]
 }
 
 test_build_from_tagged_machines_input = {

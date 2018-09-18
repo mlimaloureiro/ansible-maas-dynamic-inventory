@@ -16,7 +16,13 @@ class TestInventoryBuilderMethods(unittest.TestCase):
         self.fetcher._fetch_machines_by_tag = MagicMock(side_effect=fixtures.fetch_machines_by_tag)
         machines_by_tag = self.fetcher.fetch_machines_grouped_by_tags()
 
-        self.assertEqual(machines_by_tag, fixtures.test_fetch_machines_grouped_by_tags_output)
+        self.assertEqual(machines_by_tag, fixtures.test_fetch_machines_grouped_by_tags_result)
+
+    def test_fetch_machines_grouped_by_hostname(self):
+        self.fetcher._fetch_machines_all = MagicMock(side_effect=fixtures.fetch_machines_all)
+        machines_by_hostname = self.fetcher.fetch_machines_grouped_by_hostname()
+
+        self.assertEqual(machines_by_hostname, fixtures.test_fetch_machines_grouped_by_hostname_result)
 
     def test_build_from_tagged_machines(self):
         inventory = self.inventory_builder.build_from_tagged_machines(
