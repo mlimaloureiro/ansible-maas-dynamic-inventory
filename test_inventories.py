@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock
-from inventory import Fetcher
-from inventory import InventoryBuilder
+from maas import Fetcher
+from maas import InventoryBuilder
 import test_fixtures as fixtures
 
 
