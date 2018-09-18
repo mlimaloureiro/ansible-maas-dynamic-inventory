@@ -1,4 +1,4 @@
-import maas_status_enum
+from maas import MaasStatus
 
 
 def fetch_tags_summary() -> dict:
@@ -152,29 +152,29 @@ test_build_from_tagged_machines_input = {
         {
             'fqdn': 'ceph-node1.dev',
             'ip_addresses': ['127.0.0.1', '127.0.0.2'],
-            'status_name': maas_status_enum.DEPLOYED,
+            'status_name': MaasStatus.DEPLOYED,
         },
         {
             'fqdn': 'ceph-node2.dev',
             'ip_addresses': ['127.0.0.20', '127.0.0.30'],
-            'status_name': maas_status_enum.DEPLOYED,
+            'status_name': MaasStatus.DEPLOYED,
         },
     ],
     'kubernetes': [
         {
             'fqdn': 'kubernetes1.dev',
             'ip_addresses': ['192.168.0.1', '192.168.0.2'],
-            'status_name': maas_status_enum.DEPLOYED,
+            'status_name': MaasStatus.DEPLOYED,
         },
         {
             'fqdn': 'kubernetes2.dev',
             'ip_addresses': ['192.168.0.2', '192.168.0.3'],
-            'status_name': maas_status_enum.DEPLOYED,
+            'status_name': MaasStatus.DEPLOYED,
         },
         {
             'fqdn': 'kubernetes3.dev',
             'ip_addresses': ['192.168.0.4', '192.168.0.5'],
-            'status_name': maas_status_enum.DEPLOYED,
+            'status_name': MaasStatus.DEPLOYED,
         },
         {
             'fqdn': 'kubernetes4.dev',
