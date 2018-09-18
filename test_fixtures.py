@@ -1,5 +1,14 @@
 import maas_status_enum
 
+
+def fetch_tags_summary() -> dict:
+    return test_fetch_machines_grouped_by_tags_tags
+
+
+def fetch_machines_by_tag(tag_name: str) -> dict:
+    return test_fetch_machines_grouped_by_tags_machines[tag_name]
+
+
 test_fetch_machines_grouped_by_tags_tags = [
     {
         'name': 'ceph',
@@ -13,7 +22,7 @@ test_fetch_machines_grouped_by_tags_tags = [
 ]
 
 test_fetch_machines_grouped_by_tags_machines = {
-    'tag-request-ceph': [
+    'ceph': [
         {
             "fqdn": "ceph-node1.dev",
             "hostname": "ceph-node1",
@@ -31,7 +40,7 @@ test_fetch_machines_grouped_by_tags_machines = {
             "resource_uri": "/MAAS/api/2.0/machines/ff3aqe/",
         },
     ],
-    'tag-request-kubernets': [
+    'kubernets': [
         {
             "fqdn": "kubernetes1.dev",
             "hostname": "kubernetes1",
@@ -65,7 +74,7 @@ test_fetch_machines_grouped_by_tags_machines = {
             "resource_uri": "/MAAS/api/2.0/machines/ff4aqg/",
         },
     ],
-    'tag-request-empty-tag': [],
+    'empty-tag': [],
 }
 
 test_fetch_machines_grouped_by_tags_output = {
