@@ -5,6 +5,7 @@ import sys
 import os
 import json
 import uuid
+import re
 import requests
 import json
 import oauth2 as oauth
@@ -57,6 +58,20 @@ class Fetcher:
 
         # i.e: { 'group-1': [ { fqdn: 'host-1', .. }, { fqdn: 'host-2', .. } ]}
         return groups
+    
+    def fetch_machines_grouped_by_hostname(self) -> dict:
+        machines = self._fetch_all_machines()
+        groups = {}
+        for machine in machines:
+            result = re.findall(r'([a-zA-Z]+)', machine['hostname'])
+            prefix = result[0] if len(result) else None
+            if prefix in groups:
+                groups[prefix].append(machine)
+            else:
+                groups[prefix] = [machine]
+        
+        #i.e: { 'hostname': [ { fqdn: 'host-1', .. }, { fqdn: 'host-2', .. } ]}
+        return groups
 
     def _fetch_tags_summary(self) -> dict:
         url = "{}/tags/".format(self.maas_api_url.rstrip())
@@ -65,6 +80,11 @@ class Fetcher:
 
     def _fetch_machines_by_tag(self, tag_name: str) -> dict:
         url = "{}/tags/{}/?op=machines".format(self.maas_api_url.rstrip(), tag_name)
+
+        return self._api_call(url)
+
+    def _fetch_all_machines(self) -> dict:
+        url = "{}/machines".format(self.maas_api_url.rstrip())
 
         return self._api_call(url)
 
