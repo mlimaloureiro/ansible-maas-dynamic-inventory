@@ -286,3 +286,46 @@ test_build_from_tagged_machines_result = {
         'vars': {},
     },
 }
+
+test_build_from_machines_hostname_result = {
+    # inventories dict
+    '_meta': {
+        'hostvars': {
+            'joint-1.maas': {
+                'ansible_ssh_host': '172.16.1.63',
+                'ansible_ssh_host_private': '172.16.1.63'
+            },
+            'loyal-2.maas': {
+                'ansible_ssh_host': '172.16.1.62',
+                'ansible_ssh_host_private': '172.16.1.62'
+            },
+            'gentle-mole.maas': {
+                'ansible_ssh_host': '172.16.1.66',
+                'ansible_ssh_host_private': '172.16.1.66'
+            },
+            'key-chimp.maas': {
+                'ansible_ssh_host': '172.16.1.64',
+                'ansible_ssh_host_private': '172.16.1.64'
+            }
+        }
+    },
+    'joint': {
+        'hosts': [
+            'joint-1.maas',
+            'loyal-2.maas'
+        ],
+        'vars': {},
+    },
+    'gentle': {
+        'hosts': [
+            'gentle-mole.maas'
+        ],
+        'vars': {},
+    },
+    'key': {
+        'hosts': [
+            'key-chimp.maas'
+        ],
+        'vars': {},
+    }
+}
