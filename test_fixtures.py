@@ -1,5 +1,150 @@
 import maas_status_enum
 
+
+def fetch_tags_summary() -> dict:
+    return test_fetch_machines_grouped_by_tags_tags
+
+
+def fetch_machines_by_tag(tag_name: str) -> dict:
+    return test_fetch_machines_grouped_by_tags_machines[tag_name]
+
+
+test_fetch_machines_grouped_by_tags_tags = [
+    {
+        'name': 'ceph',
+    },
+    {
+        'name': 'kubernets',
+    },
+    {
+        'name': 'empty-tag',
+    },
+]
+
+test_fetch_machines_grouped_by_tags_machines = {
+    'ceph': [
+        {
+            "fqdn": "ceph-node1.dev",
+            "hostname": "ceph-node1",
+            "osystem": "ubuntu",
+            "tag_names": ["ceph"],
+            "system_id": "ff3aqd",
+            "resource_uri": "/MAAS/api/2.0/machines/ff3aqd/",
+        },
+        {
+            "fqdn": "ceph-node2.dev",
+            "hostname": "ceph-node2",
+            "osystem": "ubuntu",
+            "tag_names": ["ceph"],
+            "system_id": "ff3aqe",
+            "resource_uri": "/MAAS/api/2.0/machines/ff3aqe/",
+        },
+    ],
+    'kubernets': [
+        {
+            "fqdn": "kubernetes1.dev",
+            "hostname": "kubernetes1",
+            "osystem": "ubuntu",
+            "tag_names": ["kubernets"],
+            "system_id": "ff4aqd",
+            "resource_uri": "/MAAS/api/2.0/machines/ff4aqd/",
+        },
+        {
+            "fqdn": "kubernetes2.dev",
+            "hostname": "kubernetes2",
+            "osystem": "ubuntu",
+            "tag_names": ["kubernets"],
+            "system_id": "ff4aqe",
+            "resource_uri": "/MAAS/api/2.0/machines/ff4aqe/",
+        },
+        {
+            "fqdn": "kubernetes3.dev",
+            "hostname": "kubernetes3",
+            "osystem": "ubuntu",
+            "tag_names": ["kubernets"],
+            "system_id": "ff4aqf",
+            "resource_uri": "/MAAS/api/2.0/machines/ff4aqf/",
+        },
+        {
+            "fqdn": "kubernetes4.dev",
+            "hostname": "kubernetes4",
+            "osystem": "ubuntu",
+            "tag_names": ["kubernets"],
+            "system_id": "ff4aqg",
+            "resource_uri": "/MAAS/api/2.0/machines/ff4aqg/",
+        },
+    ],
+    'empty-tag': [],
+}
+
+test_fetch_machines_grouped_by_tags_output = {
+  'ceph': [
+    {
+      'fqdn': 'ceph-node1.dev',
+      'hostname': 'ceph-node1',
+      'osystem': 'ubuntu',
+      'tag_names': [
+        'ceph',
+      ],
+      'system_id': 'ff3aqd',
+      'resource_uri': '/MAAS/api/2.0/machines/ff3aqd/',
+    },
+    {
+      'fqdn': 'ceph-node2.dev',
+      'hostname': 'ceph-node2',
+      'osystem': 'ubuntu',
+      'tag_names': [
+        'ceph',
+      ],
+      'system_id': 'ff3aqe',
+      'resource_uri': '/MAAS/api/2.0/machines/ff3aqe/',
+    }
+  ],
+  'kubernets': [
+    {
+      'fqdn': 'kubernetes1.dev',
+      'hostname': 'kubernetes1',
+      'osystem': 'ubuntu',
+      'tag_names': [
+        'kubernets',
+      ],
+      'system_id': 'ff4aqd',
+      'resource_uri': '/MAAS/api/2.0/machines/ff4aqd/',
+    },
+    {
+      'fqdn': 'kubernetes2.dev',
+      'hostname': 'kubernetes2',
+      'osystem': 'ubuntu',
+      'tag_names': [
+        'kubernets',
+      ],
+      'system_id': 'ff4aqe',
+      'resource_uri': '/MAAS/api/2.0/machines/ff4aqe/',
+    },
+    {
+      'fqdn': 'kubernetes3.dev',
+      'hostname': 'kubernetes3',
+      'osystem': 'ubuntu',
+      'tag_names': [
+        'kubernets',
+      ],
+      'system_id': 'ff4aqf',
+      'resource_uri': '/MAAS/api/2.0/machines/ff4aqf/',
+    },
+    {
+      'fqdn': 'kubernetes4.dev',
+      'hostname': 'kubernetes4',
+      'osystem': 'ubuntu',
+      'tag_names': [
+        'kubernets',
+      ],
+      'system_id': 'ff4aqg',
+      'resource_uri': '/MAAS/api/2.0/machines/ff4aqg/',
+    }
+  ],
+  'empty-tag': [],
+}
+
 test_build_from_tagged_machines_input = {
     # key is the tag attached to maas node, value are the machines
     # containing that tag
