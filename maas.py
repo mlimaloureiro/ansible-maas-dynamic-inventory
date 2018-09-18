@@ -58,7 +58,7 @@ class Fetcher:
 
         # i.e: { 'group-1': [ { fqdn: 'host-1', .. }, { fqdn: 'host-2', .. } ]}
         return groups
-    
+
     def fetch_machines_grouped_by_hostname(self) -> dict:
         machines = self._fetch_machines_all()
         groups = {}
@@ -69,8 +69,8 @@ class Fetcher:
                 groups[prefix].append(machine)
             else:
                 groups[prefix] = [machine]
-        
-        #i.e: { 'hostname': [ { fqdn: 'host-1', .. }, { fqdn: 'host-2', .. } ]}
+
+        # i.e: { 'hostname': [ { fqdn: 'host-1', .. }, { fqdn: 'host-2', .. } ]}
         return groups
 
     def _fetch_tags_summary(self) -> dict:

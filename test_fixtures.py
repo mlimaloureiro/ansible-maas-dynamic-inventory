@@ -8,6 +8,7 @@ def fetch_tags_summary() -> dict:
 def fetch_machines_by_tag(tag_name: str) -> dict:
     return test_fetch_machines_grouped_by_tags_machines[tag_name]
 
+
 def fetch_machines_all() -> dict:
     return test_fetch_machines_grouped_by_hostname_machines
 
