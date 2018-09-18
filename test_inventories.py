@@ -1,26 +1,28 @@
 import unittest
 from unittest.mock import MagicMock
-from maas import Fetcher
-from maas import InventoryBuilder
+from maas_tags import Fetcher as Fetcher_tags
+from maas_hostname import Fetcher as Fetcher_hostname
+from maas_tags import InventoryBuilder
 import test_fixtures as fixtures
 
 
 class TestInventoryBuilderMethods(unittest.TestCase):
 
     def setUp(self):
-        self.fetcher = Fetcher(None, None)
+        self.fetcherTags = Fetcher_tags(None, None)
+        self.fetcherHostname = Fetcher_hostname(None, None)
         self.inventory_builder = InventoryBuilder()
 
     def test_fetch_machines_grouped_by_tags(self):
-        self.fetcher._fetch_tags_summary = MagicMock(side_effect=fixtures.fetch_tags_summary)
-        self.fetcher._fetch_machines_by_tag = MagicMock(side_effect=fixtures.fetch_machines_by_tag)
-        machines_by_tag = self.fetcher.fetch_machines_grouped_by_tags()
+        self.fetcherTags._fetch_tags_summary = MagicMock(side_effect=fixtures.fetch_tags_summary)
+        self.fetcherTags._fetch_machines_by_tag = MagicMock(side_effect=fixtures.fetch_machines_by_tag)
+        machines_by_tag = self.fetcherTags.fetch_machines_grouped_by_tags()
 
         self.assertEqual(machines_by_tag, fixtures.test_fetch_machines_grouped_by_tags_result)
 
     def test_fetch_machines_grouped_by_hostname(self):
-        self.fetcher._fetch_machines_all = MagicMock(side_effect=fixtures.fetch_machines_all)
-        machines_by_hostname = self.fetcher.fetch_machines_grouped_by_hostname()
+        self.fetcherHostname._fetch_machines_all = MagicMock(side_effect=fixtures.fetch_machines_all)
+        machines_by_hostname = self.fetcherHostname.fetch_machines_grouped_by_hostname()
 
         self.assertEqual(machines_by_hostname, fixtures.test_fetch_machines_grouped_by_hostname_result)
 

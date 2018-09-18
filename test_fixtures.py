@@ -1,4 +1,4 @@
-from maas import MaasStatusEnum
+from maas_tags import MaasStatusEnum
 
 
 def fetch_tags_summary() -> dict:

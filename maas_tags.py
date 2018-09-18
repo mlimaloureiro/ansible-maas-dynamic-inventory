@@ -5,7 +5,6 @@ import sys
 import os
 import json
 import uuid
-import re
 import requests
 import json
 import oauth2 as oauth
@@ -57,20 +56,6 @@ class Fetcher:
             groups[tag['name']] = machines
 
         # i.e: { 'group-1': [ { fqdn: 'host-1', .. }, { fqdn: 'host-2', .. } ]}
-        return groups
-
-    def fetch_machines_grouped_by_hostname(self) -> dict:
-        machines = self._fetch_machines_all()
-        groups = {}
-        for machine in machines:
-            result = re.findall(r'([a-zA-Z]+)', machine['hostname'])
-            prefix = result[0] if len(result) else None
-            if prefix in groups:
-                groups[prefix].append(machine)
-            else:
-                groups[prefix] = [machine]
-
-        # i.e: { 'hostname': [ { fqdn: 'host-1', .. }, { fqdn: 'host-2', .. } ]}
         return groups
 
     def _fetch_tags_summary(self) -> dict:
