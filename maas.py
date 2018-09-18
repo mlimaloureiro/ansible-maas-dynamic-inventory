@@ -10,7 +10,8 @@ import json
 import oauth2 as oauth
 
 
-class MaasStatus:
+class MaasStatusEnum:
+    """ Class used to enumerate MAAS statuses """
     DEPLOYED = 'Deployed'
 
 
@@ -85,7 +86,7 @@ class InventoryBuilder:
             hosts = []
             ansible_group_name = tag_name
             for machine in grouped_machines:
-                if machine['status_name'] == MaasStatus.DEPLOYED:
+                if machine['status_name'] == MaasStatusEnum.DEPLOYED:
                     hosts.append(machine['fqdn'])
                     inventory['_meta']['hostvars'][machine['fqdn']] = self._build_meta(machine)
 
