@@ -49,21 +49,30 @@ class Fetcher:
         self.authenticator = authenticator
         self.maas_api_url = maas_api_url
 
+    def _get_hostname_prefix(self, hostname: str) -> str:
+        result = re.findall(r'([a-zA-Z]+)', hostname)
+        return result[0] if len(result) else None
+
+    def _add_machine_to_group(self, groups: dict, hostname: str, machine: dict) -> dict:
+        if hostname in groups:
+            groups[hostname].append(machine)
+            return groups
+
+        groups[hostname] = [machine]
+
+        return groups
+
     def fetch_machines_grouped_by_hostname(self) -> dict:
-        machines = self._fetch_machines_all()
+        machines = self._fetch_all_machines()
         groups = {}
         for machine in machines:
-            result = re.findall(r'([a-zA-Z]+)', machine['hostname'])
-            prefix = result[0] if len(result) else None
-            if prefix in groups:
-                groups[prefix].append(machine)
-            else:
-                groups[prefix] = [machine]
+            prefix = self._get_hostname_prefix(machine['hostname'])
+            self._add_machine_to_group(groups, prefix, machine)
 
         # i.e: { 'hostname': [ { fqdn: 'host-1', .. }, { fqdn: 'host-2', .. } ]}
         return groups
 
-    def _fetch_machines_all(self) -> dict:
+    def _fetch_all_machines(self) -> dict:
         url = "{}/machines".format(self.maas_api_url.rstrip())
 
         return self._api_call(url)
