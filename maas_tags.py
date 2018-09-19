@@ -6,8 +6,13 @@ import os
 import json
 import uuid
 import requests
-import json
+import requests_cache
 import oauth2 as oauth
+
+DEFAULTS = {
+    "cache_path": "~/.ansible/tmp",
+    "cache_expire": 300
+}
 
 
 class MaasStatusEnum:
@@ -68,11 +73,6 @@ class Fetcher:
 
         return self._api_call(url)
 
-    def _fetch_machines_all(self) -> dict:
-        url = "{}/machines".format(self.maas_api_url.rstrip())
-
-        return self._api_call(url)
-
     def _api_call(self, url: str) -> dict:
         headers = self.authenticator.create_headers()
         request = requests.get(url, headers=headers)
@@ -121,7 +121,10 @@ class InventoryBuilder:
 
 @click.command()
 @click.option('--list', 'list_flag', '-l', is_flag=True)
-def cli(list_flag):
+@click.option('--refresh-cache', 'refresh_cache', is_flag=True)
+def cli(list_flag, refresh_cache):
+    _setup_cache(refresh_cache)
+
     maas_api_url = os.environ.get('MAAS_API_URL')
     maas_api_key = os.environ.get('MAAS_API_KEY')
     authenticator = Authenticator(maas_api_url, maas_api_key)
@@ -142,6 +145,19 @@ def _list(fetcher: Fetcher, builder: InventoryBuilder) -> dict:
     inventory = builder.build_from_tagged_machines(machines)
 
     return json.dumps(inventory, indent=4)
+
+
+def _setup_cache(refresh_cache: bool, path=DEFAULTS["cache_path"], expire_after=DEFAULTS["cache_expire"]):
+    folder_path = os.path.expanduser(path)
+    file_name = os.path.join(folder_path, "ansible-maas-dynamics-inventory")
+
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+
+    requests_cache.install_cache(file_name, expire_after=expire_after)
+
+    if refresh_cache and os.path.isfile("{}.sqlite".format(file_name)):
+        requests_cache.clear()
 
 
 if __name__ == '__main__':
