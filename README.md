@@ -3,7 +3,7 @@
 
 # ansible-maas-inventory
 A inventory generator script to work with Ubuntu [MAAS](https://maas.io/). It will generate your groups by looking
-at either the tags (`maas_tags.py`) or hostname prefix (`maas_hostname.py`) you have in your MAAS nodes.
+at either the tags or hostname prefix you have in your MAAS nodes.
 
 ### Requirements
 
@@ -16,13 +16,13 @@ By looking at the tests it's quite easy to understand how it works. Just look at
 Set environment variables for `MAAS_API_URL` and `MAAS_API_KEY`. After that you can run
 
 ```
-   $ python maas_tags.py --list
+   $ python maas.py --list
 ```
 
 and with ansible
 
 ```
-    $ ansible -i maas_tags.py some-playbook.yml
+    $ ansible -i maas.py some-playbook.yml
 ```
 
 ### Output
@@ -72,4 +72,23 @@ and with ansible
         'vars': {},
     },
 }
+```
 
+### Configuration
+
+Configuration can be done by editing the maas.ini file or defining a new environment variable `MAAS_INI_PATH` indicating a new configuration file.
+
+Available configuration:
+
+```
+[maas]
+group_machines_by = tags | hostnames
+
+[auth]
+maas_api_key = XXXX:XXXX:XXXX
+maas_api_url = https://docs.maas.io/MAAS/api/2.0/
+
+[cache]
+cache_path = ~/.ansible/tmp
+cache_max_age = 300
+```
