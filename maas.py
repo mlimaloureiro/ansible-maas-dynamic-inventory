@@ -252,7 +252,7 @@ class MAASInventory(object):
 
         # MAAS Settings
         if not config.has_section('maas'):
-            config.add_section('cache')
+            config.add_section('maas')
 
         self.group_machines_by = config.get('maas', 'group_machines_by')
 
