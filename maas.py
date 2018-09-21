@@ -67,8 +67,10 @@ class Fetcher:
             return groups
 
         groups[hostname] = [machine]
-
         return groups
+
+    def fetch_machine_by_node(self, system_id: str) -> dict:
+        return self._fetch_node(system_id)
 
     def fetch_machines_grouped_by_hostname(self) -> dict:
         machines = self._fetch_all_machines()
@@ -102,6 +104,11 @@ class Fetcher:
 
     def _fetch_machines_by_tag(self, tag_name: str) -> dict:
         url = "{}/tags/{}/?op=machines".format(self.maas_api_url.rstrip(), tag_name)
+
+        return self._api_call(url)
+
+    def _fetch_node(self, system_id: str) -> dict:
+        url = "{}/nodes/{}".format(self.maas_api_url.rstrip(), system_id)
 
         return self._api_call(url)
 
@@ -167,6 +174,9 @@ class MAASInventory(object):
         machines = self.fetcher.fetch_machines_grouped_by_hostname()
         return self.builder.build_from_machines(machines)
 
+    def _get_machine_by_node(self, system_id: str) -> dict:
+        return self.fetcher.fetch_machine_by_node(system_id)
+
     def _list(self):
         ''' Fetch and build the inventory '''
 
@@ -175,6 +185,12 @@ class MAASInventory(object):
         elif self.group_machines_by == "hostnames":
             self.inventory = self._group_machines_by_hostname()
 
+        return json.dumps(self.inventory, indent=4)
+
+    def _host(self):
+        ''' Fetch machine by host ip '''
+
+        self.inventory = self._get_machine_by_node(self.args.host)
         return json.dumps(self.inventory, indent=4)
 
     def __init__(self):
@@ -197,6 +213,8 @@ class MAASInventory(object):
 
         if self.args.list:
             print(self._list())
+        elif self.args.host:
+            print(self._host())
 
     def parse_cli_args(self):
         ''' Command line argument processing '''
