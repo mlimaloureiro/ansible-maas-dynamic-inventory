@@ -14,8 +14,10 @@ import requests_cache
 
 DEFAULTS = {
     "group_machines_by": "tags",
+    "cache_filename": "ansible-maas-dynamics-inventory",
     "cache_path": "~/.ansible/tmp",
-    "cache_max_age": 300
+    "cache_max_age_in_seconds": 300,
+    "refresh_cache": False
 }
 
 
@@ -53,22 +55,10 @@ class Authenticator:
 class Fetcher:
     """ Class used to fetch nodes data from MAAS """
 
-    def __init__(self, authenticator: Authenticator, maas_api_url: str):
+    def __init__(self, authenticator: Authenticator, maas_api_url: str, cache_settings: dict):
         self.authenticator = authenticator
         self.maas_api_url = maas_api_url
-
-    def _get_hostname_prefix(self, hostname: str) -> str:
-        result = re.findall(r'([a-zA-Z]+)', hostname)
-        return result[0] if len(result) else None
-
-    def _add_machine_to_group(self, groups: dict, hostname: str, machine: dict) -> dict:
-        if hostname in groups:
-            groups[hostname].append(machine)
-            return groups
-
-        groups[hostname] = [machine]
-
-        return groups
+        self._config_cache(cache_settings)
 
     def fetch_machines_grouped_by_hostname(self) -> dict:
         machines = self._fetch_all_machines()
@@ -88,6 +78,33 @@ class Fetcher:
             groups[tag['name']] = machines
 
         # i.e: { 'group-1': [ { fqdn: 'host-1', .. }, { fqdn: 'host-2', .. } ]}
+        return groups
+
+    def _config_cache(self, cache_settings: dict):
+        ''' Configure the cache settings '''
+
+        folder_path = os.path.expanduser(os.path.expandvars(cache_settings['path']))
+        file_name = os.path.join(folder_path, cache_settings['filename'])
+
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
+        requests_cache.install_cache(file_name, expire_after=cache_settings['max_age_in_seconds'])
+
+        if cache_settings['refresh_cache'] and os.path.isfile("{}.sqlite".format(file_name)):
+            requests_cache.clear()
+
+    def _get_hostname_prefix(self, hostname: str) -> str:
+        result = re.findall(r'([a-zA-Z]+)', hostname)
+        return result[0] if len(result) else None
+
+    def _add_machine_to_group(self, groups: dict, hostname: str, machine: dict) -> dict:
+        if hostname in groups:
+            groups[hostname].append(machine)
+            return groups
+
+        groups[hostname] = [machine]
+
         return groups
 
     def _fetch_all_machines(self) -> dict:
@@ -154,45 +171,20 @@ class InventoryBuilder:
         }
 
 
-class MAASInventory(object):
-
-    def _default_inventory(self) -> dict:
-        return self.builder.build_default()
-
-    def _group_machines_by_tag(self) -> dict:
-        machines = self.fetcher.fetch_machines_grouped_by_tags()
-        return self.builder.build_from_machines(machines)
-
-    def _group_machines_by_hostname(self) -> dict:
-        machines = self.fetcher.fetch_machines_grouped_by_hostname()
-        return self.builder.build_from_machines(machines)
-
-    def _list(self):
-        ''' Fetch and build the inventory '''
-
-        if self.group_machines_by == "tags":
-            self.inventory = self._group_machines_by_tag()
-        elif self.group_machines_by == "hostnames":
-            self.inventory = self._group_machines_by_hostname()
-
-        return json.dumps(self.inventory, indent=4)
+class Main(object):
 
     def __init__(self):
         """ Main execution path """
 
-        # MAAS Credentials
         self.credentials = {}
 
-        # Read settings, parse CLI arguments and config Cache
         self.parse_cli_args()
-        self.read_settings()
-        self.config_cache()
+        self.load_settings()
 
         self.authenticator = Authenticator(self.maas_api_url, self.maas_api_key)
-        self.fetcher = Fetcher(self.authenticator, self.maas_api_url)
+        self.fetcher = Fetcher(self.authenticator, self.maas_api_url, self.cache_settings)
         self.builder = InventoryBuilder()
 
-        # Inventory grouped by hostname or tags
         self.inventory = self._default_inventory()
 
         if self.args.list:
@@ -210,9 +202,15 @@ class MAASInventory(object):
                             help='Force refresh of cache by making API requests to MAAS (default: False)')
         self.args = parser.parse_args()
 
-    def read_settings(self):
+    def load_settings(self):
         ''' Read configuration settings from ini file and env vars '''
 
+        config = self._load_config_file()
+        self._load_auth_settings(config)
+        self._load_cache_settings(config)
+        self._load_maas_settings(config)
+
+    def _load_config_file(self):
         scriptbasename = os.path.basename(__file__)
         scriptbasename = scriptbasename.replace('.py', '')
 
@@ -231,7 +229,9 @@ class MAASInventory(object):
         if os.path.isfile(maas_ini_path):
             config.read(maas_ini_path)
 
-        # Auth Settings
+        return config
+
+    def _load_auth_settings(self, config):
         if not config.has_section('auth'):
             config.add_section('auth')
 
@@ -243,34 +243,45 @@ class MAASInventory(object):
         if not self.maas_api_key:
             sys.exit("MAAS_API_KEY environment variable not found")
 
-        # Cache Settings
+    def _load_cache_settings(self, config):
         if not config.has_section('cache'):
             config.add_section('cache')
 
-        self.cache_path = config.get('cache', 'cache_path')
-        self.cache_max_age = config.getint('cache', 'cache_max_age')
+        self.cache_settings = {}
+        self.cache_settings['filename'] = config.get('cache', 'cache_filename')
+        self.cache_settings['path'] = config.get('cache', 'cache_path')
+        self.cache_settings['max_age_in_seconds'] = config.getint('cache', 'cache_max_age_in_seconds')
+        self.cache_settings['refresh_cache'] = True if self.args.refresh_cache else config.getboolean('cache', 'refresh_cache')
 
-        # MAAS Settings
+    def _load_maas_settings(self, config):
         if not config.has_section('maas'):
             config.add_section('maas')
 
         self.group_machines_by = config.get('maas', 'group_machines_by')
 
-    def config_cache(self):
-        ''' Configure the cache settings '''
+    def _default_inventory(self) -> dict:
+        return self.builder.build_default()
 
-        folder_path = os.path.expanduser(os.path.expandvars(self.cache_path))
-        file_name = os.path.join(folder_path, "ansible-maas-dynamics-inventory")
+    def _group_machines_by_tag(self) -> dict:
+        machines = self.fetcher.fetch_machines_grouped_by_tags()
 
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
+        return self.builder.build_from_machines(machines)
 
-        requests_cache.install_cache(file_name, expire_after=self.cache_max_age)
+    def _group_machines_by_hostname(self) -> dict:
+        machines = self.fetcher.fetch_machines_grouped_by_hostname()
 
-        # Force refresh cache
-        if self.args.refresh_cache and os.path.isfile("{}.sqlite".format(file_name)):
-            requests_cache.clear()
+        return self.builder.build_from_machines(machines)
+
+    def _list(self):
+        ''' Fetch and build the inventory '''
+
+        if self.group_machines_by == "tags":
+            self.inventory = self._group_machines_by_tag()
+        elif self.group_machines_by == "hostnames":
+            self.inventory = self._group_machines_by_hostname()
+
+        return json.dumps(self.inventory, indent=4)
 
 
 if __name__ == '__main__':
-    MAASInventory()
+    Main()
