@@ -8,7 +8,13 @@ import test_fixtures as fixtures
 class TestInventoryBuilderMethods(unittest.TestCase):
 
     def setUp(self):
-        self.fetcher = Fetcher(None, None)
+        cache_settings = {
+            'filename': 'ansible-maas-dynamics-inventory-test',
+            'path': '~/.ansible/tmp',
+            'max_age_in_seconds': 0,
+            'refresh_cache': False
+        }
+        self.fetcher = Fetcher(None, None, cache_settings)
         self.inventory_builder = InventoryBuilder()
 
     def test_fetch_machines_grouped_by_tags(self):
