@@ -301,5 +301,6 @@ class Main(object):
         self.inventory = self._get_machine_by_node(self.args.host)
         return json.dumps(self.inventory, indent=4)
 
+
 if __name__ == '__main__':
     Main()
