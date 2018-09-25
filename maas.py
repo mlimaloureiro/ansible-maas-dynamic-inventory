@@ -156,6 +156,11 @@ class InventoryBuilder:
 
         return inventory
 
+    def build_from_machine_node(self, machine: dict) -> dict:
+        machine.update(self._build_meta(machine))
+
+        return machine
+
     def build_default(self) -> dict:
         return self._get_default_inventory()
 
@@ -283,7 +288,9 @@ class Main(object):
         return self.builder.build_from_machines(machines)
 
     def _get_machine_by_node(self, system_id: str) -> dict:
-        return self.fetcher.fetch_machine_by_node(system_id)
+        machine = self.fetcher.fetch_machine_by_node(system_id)
+
+        return self.builder.build_from_machine_node(machine)
 
     def _list(self):
         ''' Fetch and build the inventory '''
