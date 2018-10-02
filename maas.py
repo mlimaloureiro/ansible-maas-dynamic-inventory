@@ -60,6 +60,9 @@ class Fetcher:
         self.maas_api_url = maas_api_url
         self._config_cache(cache_settings)
 
+    def fetch_machine_by_node(self, system_id: str) -> dict:
+        return self._fetch_node(system_id)
+
     def fetch_machines_grouped_by_hostname(self) -> dict:
         machines = self._fetch_all_machines()
         groups = {}
@@ -122,6 +125,11 @@ class Fetcher:
 
         return self._api_call(url)
 
+    def _fetch_node(self, system_id: str) -> dict:
+        url = "{}/nodes/{}".format(self.maas_api_url.rstrip(), system_id)
+
+        return self._api_call(url)
+
     def _api_call(self, url: str) -> dict:
         headers = self.authenticator.create_headers()
         request = requests.get(url, headers=headers)
@@ -147,6 +155,11 @@ class InventoryBuilder:
             inventory[ansible_group_name] = self._build_hosts(hosts)
 
         return inventory
+
+    def build_from_machine_node(self, machine: dict) -> dict:
+        machine.update(self._build_meta(machine))
+
+        return machine
 
     def build_default(self) -> dict:
         return self._get_default_inventory()
@@ -189,6 +202,8 @@ class Main(object):
 
         if self.args.list:
             print(self._list())
+        elif self.args.host:
+            print(self._host())
 
     def parse_cli_args(self):
         ''' Command line argument processing '''
@@ -272,6 +287,11 @@ class Main(object):
 
         return self.builder.build_from_machines(machines)
 
+    def _get_machine_by_node(self, system_id: str) -> dict:
+        machine = self.fetcher.fetch_machine_by_node(system_id)
+
+        return self.builder.build_from_machine_node(machine)
+
     def _list(self):
         ''' Fetch and build the inventory '''
 
@@ -280,6 +300,12 @@ class Main(object):
         elif self.group_machines_by == "hostnames":
             self.inventory = self._group_machines_by_hostname()
 
+        return json.dumps(self.inventory, indent=4)
+
+    def _host(self):
+        ''' Fetch machine by host system id '''
+
+        self.inventory = self._get_machine_by_node(self.args.host)
         return json.dumps(self.inventory, indent=4)
 
 
