@@ -17,7 +17,8 @@ DEFAULTS = {
     "cache_filename": "ansible-maas-dynamics-inventory",
     "cache_path": "~/.ansible/tmp",
     "cache_max_age_in_seconds": 300,
-    "refresh_cache": False
+    "refresh_cache": False,
+    "filter_by_tag": "",
 }
 
 
@@ -141,13 +142,16 @@ class Fetcher:
 class InventoryBuilder:
     """ Class used to build the inventory """
 
-    def build_from_machines(self, machines: dict) -> dict:
+    def build_from_machines(self, machines: dict, tag_filter: str) -> dict:
         inventory = self._get_default_inventory()
 
         for key, grouped_machines in machines.items():
             hosts = []
             ansible_group_name = key
             for machine in grouped_machines:
+                if tag_filter not in machine['tag_names']:
+                    continue
+
                 if machine['status_name'] == MaasStatusEnum.DEPLOYED:
                     hosts.append(machine['fqdn'])
                     inventory['_meta']['hostvars'][machine['fqdn']] = self._build_meta(machine)
@@ -156,7 +160,7 @@ class InventoryBuilder:
 
         return inventory
 
-    def build_from_machine_node(self, machine: dict) -> dict:
+    def build_from_machine_node(self, machine: dict, tag_filter: str) -> dict:
         machine.update(self._build_meta(machine))
 
         return machine
@@ -273,6 +277,7 @@ class Main(object):
             config.add_section('maas')
 
         self.group_machines_by = config.get('maas', 'group_machines_by')
+        self.tag_filter = config.get('maas', 'tag_filter')
 
     def _default_inventory(self) -> dict:
         return self.builder.build_default()
@@ -280,17 +285,17 @@ class Main(object):
     def _group_machines_by_tag(self) -> dict:
         machines = self.fetcher.fetch_machines_grouped_by_tags()
 
-        return self.builder.build_from_machines(machines)
+        return self.builder.build_from_machines(machines, self.tag_filter)
 
     def _group_machines_by_hostname(self) -> dict:
         machines = self.fetcher.fetch_machines_grouped_by_hostname()
 
-        return self.builder.build_from_machines(machines)
+        return self.builder.build_from_machines(machines, self.tag_filter)
 
     def _get_machine_by_node(self, system_id: str) -> dict:
         machine = self.fetcher.fetch_machine_by_node(system_id)
 
-        return self.builder.build_from_machine_node(machine)
+        return self.builder.build_from_machine_node(machine, self.tag_filter)
 
     def _list(self):
         ''' Fetch and build the inventory '''
