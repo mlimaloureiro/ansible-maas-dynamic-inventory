@@ -111,7 +111,7 @@ class Fetcher:
         return groups
 
     def _fetch_all_machines(self) -> dict:
-        url = "{}/machines".format(self.maas_api_url.rstrip())
+        url = "{}/machines/".format(self.maas_api_url.rstrip())
 
         return self._api_call(url)
 
